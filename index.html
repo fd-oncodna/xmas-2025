@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>🎄</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 32px; }
+    .tree { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre; line-height: 1.1; }
+    .hint { margin-top: 16px; opacity: 0.75; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="tree">
+        *
+       / \
+      /___\
+     /_____\
+    /_______\
+   /_________\
+        | |
+        | |
+  </div>
+  <div class="hint">rendering issue — probably nothing 🙂</div>
+
+  <!--
+  si tu lis ça, tu es au bon endroit
+
+  𝒜="".join(map(chr,[48,49,50,51,52,53,54,55,56,57]+list(range(65,91))))
+  d=[109,52,-79,66,-72,-33,2,4,13,16,-29,79,33,-19,-47,-33,20,46,-17,-68,118,-116,37,13,47,-47,-33,99,-17,-82,14,-31,17,80,-80,20,0,62,17,-66,16,17,-66,14,33]
+  ℕ=[0]
+  for x in d: ℕ.append(ℕ[-1]+x)
+  ℕ=ℕ[1:]
+
+  def 𝒻(n):
+      n=int(n)
+      if not n:
+          return 𝒜[0]
+      o=[]
+      while n>0:
+          n,r=divmod(n,(8<<2))
+          o.append(𝒜[r])
+      return "".join(reversed(o))
+
+  g=(lambda xs: "".join(𝒻((x%(0x21))) for x in xs),)[0]
+  print(g(ℕ))
+  -->
+</body>
+</html>
+
