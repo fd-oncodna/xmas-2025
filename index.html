@@ -8,27 +8,40 @@
     .tree { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre; line-height: 1.1; }
     .hint { margin-top: 16px; opacity: 0.75; font-size: 13px; }
     .aside {
-  opacity: .6;
-  font-style: italic;
-  margin-left: 6px;
-  text-decoration: none;
-  color: inherit;
-}
-.aside:hover { text-decoration: underline; opacity: .8; }
+      opacity: .6;
+      font-style: italic;
+      margin-left: 6px;
+      text-decoration: none;
+      color: inherit;
+    }
+    a.stealth-link,
+    a.stealth-link:visited,
+    a.stealth-link:hover,
+    a.stealth-link:active,
+    a.stealth-link:focus {
+      text-decoration: none;
+      color: inherit;
+      outline: none;
+      cursor: default; /* important: do NOT show pointer */
+      -webkit-tap-highlight-color: transparent;
+    }
   </style>
 </head>
 <body>
-  <div class="tree">
+<a class="stealth-link" href="./gate.html" aria-label="move along">
+  <div class="tree" aria-label="ascii tree">
         *
        / \
       /___\
      /_____\
     /_______\
    /_________\
-        | |
-        | |
+      | |
+      | |
   </div>
-  <div class="hint">This is not the tree you are looking for.<a class="aside" href="https://web.expasy.org/translate/" target="_blank" rel="noopener">move along</a></div>
+</a>
+
+  <div class="hint">This is not the tree you are looking for.<a class="aside stealth-link" href="https://web.expasy.org/translate/" target="_blank" rel="noopener">move along</a></div>
 
   <!--
   si tu lis ça, tu es au bon endroit
