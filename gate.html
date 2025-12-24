@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Access</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      padding: 32px 18px;
+      background: #ffffff;
+      color: #111;
+    }
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .card {
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 14px;
+      padding: 18px;
+      background: rgba(0,0,0,.03);
+    }
+    .title {
+      font-size: 18px;
+      margin: 0 0 12px 0;
+    }
+    .sub {
+      font-size: 13px;
+      opacity: .8;
+      margin: 0 0 16px 0;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    input[type="password"] {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,.18);
+      min-width: 240px;
+      font-size: 14px;
+      outline: none;
+    }
+    button {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,.18);
+      background: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    button:hover { background: rgba(0,0,0,.04); }
+    .msg {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.12);
+      display: none;
+    }
+    .ok { background: rgba(0, 128, 0, 0.06); }
+    .ko { background: rgba(255, 0, 0, 0.05); }
+    .actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    a.mail {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,.18);
+      text-decoration: none;
+      color: inherit;
+      background: #fff;
+    }
+    a.mail:hover { background: rgba(0,0,0,.04); }
+    .tiny {
+      margin-top: 10px;
+      font-size: 12px;
+      opacity: .6;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1 class="title">ModPass</h1>
+      <p class="sub">Accès réservé au meilleur des meilleurs.</p>
+
+      <div class="row">
+        <input id="pwd" type="password" placeholder="Enter password" autocomplete="off" />
+        <button id="btn">Valider</button>
+      </div>
+
+      <div id="ok" class="msg ok">
+        <div><strong>✅ Bravo !</strong></div>
+        <div>Tu es officiellement le meilleur des meilleurs.</div>
+        <div class="actions">
+          <a id="mail" class="mail" href="#">Envoyer la preuve à François</a>
+          <button id="copy">Copier le message</button>
+        </div>
+      </div>
+
+      <div id="ko" class="msg ko">
+        ❌ Perdu. Essaie encore. (Astuce: c'est une protéïne.)
+      </div>
+    </div>
+  </div>
+
+<script>
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(str)
+    );
+    return [...new Uint8Array(buf)]
+      .map(b => b.toString(16).padStart(2, "0"))
+      .join("");
+  }
+
+  function normalize(s) {
+    return (s || "")
+      .toUpperCase()
+      .replace(/\s+/g, "")
+      .replace(/\*/g, "");
+  }
+
+  const EXPECTED_HASH = "222f826ecec37a9f665abed7c73f9f5862af98b9f602211fb88493e69b35f4d8";
+
+  const pwd = document.getElementById("pwd");
+  const btn = document.getElementById("btn");
+  const ok = document.getElementById("ok");
+  const ko = document.getElementById("ko");
+  const mail = document.getElementById("mail");
+  const copy = document.getElementById("copy");
+
+  const toEmail = "fd@oncodna.com";
+  const subject = encodeURIComponent("🎄 J'ai trouvé (Meilleur des meilleurs)");
+
+  const bodyTemplate = (password) => encodeURIComponent(
+`Salut François,
+
+Je l'ai trouvé 🎄
+Le password est: ${password}
+
+Je suis officiellement le meilleur des meilleurs.
+
+(Aussi: Joyeux Noël! Toi aussi tu es le meilleur, j'aimerais être comme toi quand je serai grand)`
+  );
+
+  function show(el) { el.style.display = "block"; }
+  function hide(el) { el.style.display = "none"; }
+
+  function setDisabled(disabled) {
+    btn.disabled = disabled;
+    pwd.disabled = disabled;
+    if (disabled) {
+      btn.textContent = "Checking...";
+    } else {
+      btn.textContent = "Validate";
+    }
+  }
+
+  async function validate() {
+    const value = normalize(pwd.value);
+
+    if (!value) {
+      hide(ok);
+      show(ko);
+      return;
+    }
+
+    try {
+      setDisabled(true);
+
+      const hash = await sha256(value);
+
+      if (hash === EXPECTED_HASH) {
+        hide(ko);
+        show(ok);
+        mail.href = `mailto:${toEmail}?subject=${subject}&body=${bodyTemplate(value)}`;
+      } else {
+        hide(ok);
+        show(ko);
+      }
+    } catch (e) {
+      // Fail closed: show KO
+      hide(ok);
+      show(ko);
+    } finally {
+      setDisabled(false);
+    }
+  }
+
+  btn.addEventListener("click", validate);
+
+  pwd.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") validate();
+  });
+
+  copy.addEventListener("click", async () => {
+    const value = normalize(pwd.value) || "<unknown>";
+    const msg =
+`Je l'ai trouvé 🎄
+Password: ${value}
+Le meilleur des meilleurs.`;
+
+    try {
+      await navigator.clipboard.writeText(msg);
+      copy.textContent = "Copied!";
+      setTimeout(() => (copy.textContent = "Copy message"), 1200);
+    } catch {
+      copy.textContent = "Copy failed";
+      setTimeout(() => (copy.textContent = "Copy message"), 1200);
+    }
+  });
+</script>
+
+</body>
+</html>
+
